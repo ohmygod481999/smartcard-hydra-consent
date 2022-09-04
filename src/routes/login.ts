@@ -11,6 +11,13 @@ const csrfProtection = csrf({ cookie: true })
 const router = express.Router()
 
 router.get('/', csrfProtection, (req, res, next) => {
+  // res.render('login', {
+  //   csrfToken: req.csrfToken(),
+  //   challenge: "challenge",
+  //   action: urljoin(process.env.BASE_URL || '', '/login'),
+  //   hint: 'hint',
+  // })
+  // return
   // Parses the URL query
   const query = url.parse(req.url, true).query
 
@@ -48,7 +55,8 @@ router.get('/', csrfProtection, (req, res, next) => {
         csrfToken: req.csrfToken(),
         challenge: challenge,
         action: urljoin(process.env.BASE_URL || '', '/login'),
-        hint: body.oidc_context?.login_hint || ''
+        hint: body.oidc_context?.login_hint || '',
+        error: ""
       })
     })
     // This will handle any error that happens when making HTTP calls to hydra

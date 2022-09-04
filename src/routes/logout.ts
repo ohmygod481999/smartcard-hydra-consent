@@ -19,6 +19,13 @@ router.get('/', csrfProtection, (req, res, next) => {
     return
   }
 
+  // res.render('logout', {
+  //   csrfToken: req.csrfToken(),
+  //   challenge: challenge,
+  //   action: urljoin(process.env.BASE_URL || '', '/logout')
+  // })
+  // return
+
   hydraAdmin
     .getLogoutRequest(challenge)
     // This will be called if the HTTP request was successful
@@ -40,7 +47,7 @@ router.post('/', csrfProtection, (req, res, next) => {
   // The challenge is now a hidden input field, so let's take it from the request body instead
   const challenge = req.body.challenge
 
-  if (req.body.submit === 'No') {
+  if (req.body.submit === 'Không') {
     return (
       hydraAdmin
         .rejectLogoutRequest(challenge)
