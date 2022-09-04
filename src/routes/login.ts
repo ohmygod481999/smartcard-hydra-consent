@@ -11,6 +11,8 @@ const csrfProtection = csrf({ cookie: true })
 const router = express.Router()
 
 router.get('/', csrfProtection, (req, res, next) => {
+  res.locals._csrf = req.csrfToken();
+
   // res.render('login', {
   //   csrfToken: req.csrfToken(),
   //   challenge: "challenge",
@@ -64,6 +66,7 @@ router.get('/', csrfProtection, (req, res, next) => {
 })
 
 router.post('/', csrfProtection, async (req, res, next) => {
+  res.locals._csrf = req.csrfToken();
   // The challenge is now a hidden input field, so let's take it from the request body instead
   const challenge = req.body.challenge
 
@@ -107,6 +110,7 @@ router.post('/', csrfProtection, async (req, res, next) => {
     ory_id = identity.id
   } catch (err) {
     res.render('login', {
+      action: urljoin(process.env.BASE_URL || '', '/login'),
       csrfToken: req.csrfToken(),
       challenge: challenge,
       error: 'The username / password combination is not correct'
@@ -123,6 +127,7 @@ router.post('/', csrfProtection, async (req, res, next) => {
   // Seems like the user authenticated! Let's tell hydra...
   if (ory_id === null) {
     res.render('login', {
+      action: urljoin(process.env.BASE_URL || '', '/login'),
       csrfToken: req.csrfToken(),
       challenge: challenge,
       error: 'Something wrong happened'
