@@ -4,6 +4,7 @@ import urljoin from 'url-join'
 import csrf from 'csurf'
 import { hydraAdmin } from '../config'
 import { oidcConformityMaybeFakeAcr } from './stub/oidc-cert'
+import { kratos } from '../kratos'
 
 // Sets up csrf protection
 const csrfProtection = csrf({ cookie: true })
@@ -54,7 +55,7 @@ router.get('/', csrfProtection, (req, res, next) => {
     .catch(next)
 })
 
-router.post('/', csrfProtection, (req, res, next) => {
+router.post('/', csrfProtection, async (req, res, next) => {
   // The challenge is now a hidden input field, so let's take it from the request body instead
   const challenge = req.body.challenge
 
@@ -78,9 +79,25 @@ router.post('/', csrfProtection, (req, res, next) => {
 
   // Let's check if the user provided valid credentials. Of course, you'd use a database or some third-party service
   // for this!
-  if (!(req.body.email === 'foo@bar.com' && req.body.password === 'foobar')) {
-    // Looks like the user provided invalid credentials, let's show the ui again...
 
+  let ory_id: string | null = null
+
+  try {
+    const initLoginFlowRes = await kratos.initializeSelfServiceLoginFlowWithoutBrowser()
+    const { id, ui, requested_aal } = initLoginFlowRes.data
+
+    const { nodes } = ui
+
+    const loginRes = await kratos.submitSelfServiceLoginFlow(id, {
+      identifier: req.body.email,
+      method: 'password',
+      password: req.body.password
+    })
+    // get ory_kratos_session (from cookie)
+    const { session_token, session } = loginRes.data
+    const { identity } = session
+    ory_id = identity.id
+  } catch (err) {
     res.render('login', {
       csrfToken: req.csrfToken(),
       challenge: challenge,
@@ -90,7 +107,20 @@ router.post('/', csrfProtection, (req, res, next) => {
     return
   }
 
+  // if (!(req.body.email === 'foo@bar.com' && req.body.password === 'foobar')) {
+  //   // Looks like the user provided invalid credentials, let's show the ui again...
+
+  // }
+
   // Seems like the user authenticated! Let's tell hydra...
+  if (ory_id === null) {
+    res.render('login', {
+      csrfToken: req.csrfToken(),
+      challenge: challenge,
+      error: 'Something wrong happened'
+    })
+    return
+  }
 
   hydraAdmin
     .getLoginRequest(challenge)
@@ -98,7 +128,7 @@ router.post('/', csrfProtection, (req, res, next) => {
       hydraAdmin
         .acceptLoginRequest(challenge, {
           // Subject is an alias for user ID. A subject can be a random string, a UUID, an email address, ....
-          subject: 'foo@bar.com',
+          subject: String(ory_id),
 
           // This tells hydra to remember the browser and automatically authenticate the user in future requests. This will
           // set the "skip" parameter in the other route to true on subsequent requests!

@@ -8,6 +8,7 @@ import routes from './routes'
 import login from './routes/login'
 import logout from './routes/logout'
 import consent from './routes/consent'
+import userinfo from './routes/userinfo'
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use('/', routes)
 app.use('/login', login)
 app.use('/logout', logout)
 app.use('/consent', consent)
+app.use('/userinfo', userinfo)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -37,15 +39,15 @@ app.use((req, res, next) => {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
-  app.use((err: Error, req: Request, res: Response) => {
-    res.status(500)
-    res.render('error', {
-      message: err.message,
-      error: err
-    })
-  })
-}
+// if (app.get('env') === 'development') {
+//   app.use((err: Error, req: Request, res: Response) => {
+//     res.status(500)
+//     res.render('error', {
+//       message: err.message,
+//       error: err
+//     })
+//   })
+// }
 
 // production error handler
 // no stacktraces leaked to user
@@ -64,7 +66,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   })
 })
 
-const listenOn = Number(process.env.PORT || 3000)
+const listenOn = Number(process.env.PORT || 2998)
 app.listen(listenOn, () => {
   console.log(`Listening on http://0.0.0.0:${listenOn}`)
 })

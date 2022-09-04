@@ -2,7 +2,7 @@ import express from 'express'
 import url from 'url'
 import urljoin from 'url-join'
 import csrf from 'csurf'
-import { hydraAdmin } from '../config'
+import { hydraAdmin, hydraPublic } from '../config'
 import { oidcConformityMaybeFakeSession } from './stub/oidc-cert'
 import { ConsentRequestSession } from '@oryd/hydra-client'
 
@@ -29,7 +29,8 @@ router.get('/', csrfProtection, (req, res, next) => {
     // This will be called if the HTTP request was successful
     .then(({ data: body }) => {
       // If a user has granted this application the requested scope, hydra will tell us to not show the UI.
-      if (body.skip) {
+      if (true) {
+      // if (body.skip) {
         // You can apply logic here, for example grant another scope, or do whatever...
         // ...
 
