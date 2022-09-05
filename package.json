@@ -11,7 +11,8 @@
   "scripts": {
     "build": "tsc",
     "serve": "node lib/app.js",
-    "start": "ts-node-dev --watch public,views --respawn src/app.ts",
+    "dev": "ts-node-dev --watch public,views --respawn src/app.ts",
+    "start": "node lib/app.js",
     "test": "npm-run-all build",
     "format": "prettier --write ${npm_package_config_prettierTarget}",
     "format:check": "prettier --check ${npm_package_config_prettierTarget}"
@@ -40,7 +41,7 @@
     "pug": "^2.0.4",
     "querystring": "^0.2.0",
     "serve-favicon": "^2.5.0",
-    "typescript": "^3.7.5",
+    "typescript": "^4.8.2",
     "url-join": "^4.0.1"
   },
   "devDependencies": {
